@@ -24,6 +24,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Diagnostics;
 
 namespace LLVM.ClangTidy
 {
@@ -51,6 +52,8 @@ namespace LLVM.ClangTidy
 
         private void MenuItemCallback(object sender, EventArgs args)
         {
+            ClangTidyRunner runner = new ClangTidyRunner();
+            runner.RunClangTidyProcess();
         }
     }
 }

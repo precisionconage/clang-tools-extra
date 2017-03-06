@@ -68,6 +68,7 @@
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.14.0, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualStudio.TextManager.Interop" />
     <Reference Include="Microsoft.VisualStudio.TextManager.Interop" />
     <Reference Include="Microsoft.VisualStudio.Utilities, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -98,33 +99,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="EnvDTE100">
-      <Guid>{26AD1324-4B7C-44BC-84F8-B86AED45729F}</Guid>
-      <VersionMajor>10</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="EnvDTE80">
-      <Guid>{1A31287A-4D7D-413E-8E32-3B374931BD89}</Guid>
-      <VersionMajor>8</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="EnvDTE90">
-      <Guid>{2CE2370E-D744-4936-A090-3FFFE667B0E1}</Guid>
-      <VersionMajor>9</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
     <COMReference Include="Microsoft.VisualStudio.CommandBars">
       <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
       <VersionMajor>8</VersionMajor>
@@ -145,6 +119,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundThreadWorker.cs" />
     <Compile Include="CategoryVerb.cs" />
     <Compile Include="CheckDatabase.cs" />
     <Compile Include="CheckTree.cs" />
@@ -155,6 +130,7 @@
     <Compile Include="ClangTidyProperties.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ClangTidyRunner.cs" />
     <Compile Include="DynamicPropertyConverter.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />
     <Compile Include="ForwardingPropertyDescriptor.cs" />
@@ -254,7 +230,7 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets" Condition="false" />
   <PropertyGroup>
-    <PreBuildEvent>if not exist $(ProjectDir)Key.snk ("$(SDKToolsPath)\sn.exe" -k $(ProjectDir)Key.snk)</PreBuildEvent>
+    <PreBuildEvent>if not exist $(ProjectDir)Key.snk ("$(FrameworkSDKDir)Bin\NETFX 4.6 Tools\sn.exe" -k $(ProjectDir)Key.snk)</PreBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
     <Exec ContinueOnError="false" Command="&quot;..\packages\Brutal.Dev.StrongNameSigner.1.8.0\tools\StrongNameSigner.Console.exe&quot; -in &quot;..\packages&quot; -l Summary" />
