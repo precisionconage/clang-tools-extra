@@ -52,8 +52,8 @@ namespace LLVM.ClangTidy
 
         private void MenuItemCallback(object sender, EventArgs args)
         {
-            ClangTidyRunner runner = new ClangTidyRunner();
-            runner.RunClangTidyProcess();
+            ClangTidyRunner Runner = new ClangTidyRunner();
+            Runner.RunClangTidyProcess();
         }
     }
 }

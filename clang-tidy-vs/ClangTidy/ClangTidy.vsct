@@ -63,7 +63,7 @@
 
       <Button guid="guidClangTidyCmdSet" id="cmdidClangTidy" priority="0x0100" type="Button">
         <Parent guid="guidClangTidyCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
+        <Icon guid="guidTidyImage" id="bmpTidy" />
         <Strings>
           <ButtonText>ClangTidy</ButtonText>
         </Strings>
@@ -81,6 +81,8 @@
             inside a button definition. An important aspect of this declaration is that the element id 
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
       <Bitmap guid="guidImages" href="Resources\Images_32bit.bmp" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows"/>
+      
+      <Bitmap guid="guidTidyImage" href="Resources\ButtonTidy.bmp" usedList="bmpTidy"/>
       
     </Bitmaps>
  
@@ -112,6 +114,10 @@
       <IDSymbol name="bmpPicSearch" value="3" />
       <IDSymbol name="bmpPicX" value="4" />
       <IDSymbol name="bmpPicArrows" value="5" />
+    </GuidSymbol>
+    
+    <GuidSymbol name="guidTidyImage" value="{1DDC3C3F-C9FC-4A57-A920-319695E6750C}" >
+      <IDSymbol name="bmpTidy" value="1" />
     </GuidSymbol>
   </Symbols>
 

@@ -10,27 +10,27 @@ namespace LLVM.ClangTidy
 {
     internal class OutputEventArgs : EventArgs
     {
-        public readonly string s_Output;
+        public readonly string Output;
 
         public OutputEventArgs(string output)
         {
-            s_Output = output;
+            Output = output;
         }
     }
 
     public class BackgroundThreadWorker
     {
         public event EventHandler ThreadDone;
-        private string m_ExeName;
-        private string m_Arguments;
-        public BackgroundThreadWorker(String exe_name, String arguments)
+        private string ExeName;
+        private string Arguments;
+        public BackgroundThreadWorker(String exeName, String arguments)
         {
-            m_ExeName = exe_name;
-            m_Arguments = arguments;
+            ExeName = exeName;
+            Arguments = arguments;
         }
         public void Run()
         {
-            string result = RunExternalExe(m_ExeName, m_Arguments);
+            string result = RunExternalExe(ExeName, Arguments);
             ThreadDone?.Invoke(this, new OutputEventArgs(result));
         }
 
@@ -52,15 +52,15 @@ namespace LLVM.ClangTidy
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardOutput = true;
 
-            var std_output = new StringBuilder();
-            process.OutputDataReceived += (sender, args) => std_output.AppendLine(args.Data);
+            var stdOutput = new StringBuilder();
+            process.OutputDataReceived += (sender, args) => stdOutput.AppendLine(args.Data);
 
-            string std_error = null;
+            string stdError = null;
             try
             {
                 process.Start();
                 process.BeginOutputReadLine();
-                std_error = process.StandardError.ReadToEnd();
+                stdError = process.StandardError.ReadToEnd();
                 process.WaitForExit();
             }
             catch (Exception e)
@@ -70,21 +70,21 @@ namespace LLVM.ClangTidy
 
             if (process.ExitCode == 0)
             {
-                return FormatMsg(std_output.ToString());
+                return stdOutput.ToString();// FormatMsg(std_output.ToString());
             }
             else
             {
                 var message = new StringBuilder();
 
-                if (!string.IsNullOrEmpty(std_error))
+                if (!string.IsNullOrEmpty(stdError))
                 {
-                    message.AppendLine(std_error);
+                    message.AppendLine(stdError);
                 }
 
-                if (std_output.Length != 0)
+                if (stdOutput.Length != 0)
                 {
                     message.AppendLine("Std output:");
-                    message.AppendLine(std_output.ToString());
+                    message.AppendLine(stdOutput.ToString());
                 }
 
                 throw new Exception(FormatErrorMsg(filename, arguments) + 
@@ -96,35 +96,6 @@ namespace LLVM.ClangTidy
         {
             return "'" + filename +
                 ((string.IsNullOrEmpty(arguments)) ? string.Empty : " " + arguments) + "'";
-        }
-
-        private string FormatMsg(string message)
-        {
-            string pattern = @":(\d+):(\d+)";
-            string replacement = "($1,$2)"; // Format output allowing auto navigation to source code line and column
-
-            Regex rgx = new Regex(pattern);
-            message = rgx.Replace(message, replacement);
-
-            pattern = @".*(TPreprocessorGenerated).*(file not found).*\n.*\n.*\n";
-            replacement = "";
-
-            rgx = new Regex(pattern);
-            message = rgx.Replace(message, replacement);
-
-            pattern = @".*file not found.*\n#include( *)<.*>.*\n.*";
-            replacement = "";
-
-            rgx = new Regex(pattern);
-            message = rgx.Replace(message, replacement);
-
-            pattern = @"\nwarning: .*\n";
-            replacement = "\n";
-
-            rgx = new Regex(pattern);
-            message = rgx.Replace(message, replacement);
-
-            return message;
         }
     }
 }

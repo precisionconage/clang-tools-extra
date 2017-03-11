@@ -61,6 +61,16 @@ namespace LLVM.ClangTidy {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ButtonTidy {
+            get {
+                object obj = ResourceManager.GetObject("ButtonTidy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ---
         ///Checks:
         ///   # This file should be updated when new checks are added, and eventually we should
@@ -75,6 +85,16 @@ namespace LLVM.ClangTidy {
         internal static string ClangTidyChecks {
             get {
                 return ResourceManager.GetString("ClangTidyChecks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon Package {
+            get {
+                object obj = ResourceManager.GetObject("Package", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

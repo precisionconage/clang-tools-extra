@@ -1,7 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="ClangTidy" Version="5.0.0" Language="en-US" Publisher="LLVM" />
+    <DisplayName>Clang Tidy</DisplayName>
+    <Description xml:space="preserve">A static analysis tool for C/C++ code.</Description>
+    <MoreInfo>http://clang.llvm.org/extra/clang-tidy/</MoreInfo>
+    <License>license.txt</License>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="14.0" />
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+  </Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+  </Assets>
+</PackageManifest>
+<!--
+<?xml version="1.0" encoding="utf-8"?>
 <Vsix Version="1.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="405594C3-042A-4155-B9A6-E25DAB8B1924">
-    <Name>ClangFormat</Name>
+    <Name>ClangTidy</Name>
     <Author>LLVM</Author>
     <Version>4.0.0</Version>
     <Description xml:space="preserve">A static analysis tool for C/C++ code.</Description>
@@ -32,5 +52,11 @@
   </References>
   <Content>
     <VsPackage>|%CurrentProject%;PkgdefProjectOutputGroup|</VsPackage>
+    <MefComponent>|%CurrentProject%|</MefComponent>
   </Content>
 </Vsix>
+-->
+<!--
+    Please add the following element to PackageManifest\\Assets:
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+-->
