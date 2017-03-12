@@ -165,6 +165,7 @@
     <Compile Include="ClassifierAndTagger\QuickInfoController.cs" />
     <Compile Include="ClassifierAndTagger\QuickInfoSourceProvider.cs" />
     <Compile Include="ClassifierAndTagger\QuickInfoSource.cs" />
+    <Compile Include="OutputFilterDatabase.cs" />
     <Compile Include="ValidationResultFormatter.cs" />
     <Compile Include="ClassifierAndTagger\Classifier.cs" />
     <Compile Include="ClassifierAndTagger\ClassifierProvider.cs" />
@@ -214,6 +215,7 @@
     <None Include="Key.snk" />
     <None Include="packages.config" />
     <None Include="Resources\ClangTidyChecks.yaml" />
+    <None Include="Resources\VSOutputFilter.yaml" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

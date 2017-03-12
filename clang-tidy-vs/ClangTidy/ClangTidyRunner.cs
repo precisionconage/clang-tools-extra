@@ -10,6 +10,7 @@ using EnvDTE;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace LLVM.ClangTidy
 {
@@ -20,6 +21,7 @@ namespace LLVM.ClangTidy
         private static readonly string OutputWindowTitle = "Clang Tidy";
         private static IVsOutputWindowPane OutputWindowPane;
         private static string ExtensionDirPath;
+        private static System.ComponentModel.BackgroundWorker InfoWorker;
 
         public void RunClangTidyProcess()
         {
@@ -37,18 +39,64 @@ namespace LLVM.ClangTidy
                 string arguments = "-header-filter=" + GetActiveSourceFileHeaderName();// -dump-config ";
                 arguments += " " + active_document_full_path;
 
-                OutputWindowPane.OutputStringThreadSafe(">> Running " + ClangTidyExeName + " with arguments: '" + arguments + "'\n");
+                if (StartBackgroundInfoWorker())
+                {
+                    OutputWindowPane.OutputStringThreadSafe(">> Running " + ClangTidyExeName + " with arguments: '" + arguments + "'\n");
 
-                BackgroundThreadWorker worker = new BackgroundThreadWorker(ExtensionDirPath + "\\" + ClangTidyExeName, arguments);
-                worker.ThreadDone += HandleThreadFinished;
+                    BackgroundThreadWorker worker = new BackgroundThreadWorker(ExtensionDirPath + "\\" + ClangTidyExeName, arguments);
+                    worker.ThreadDone += HandleThreadFinished;
 
-                System.Threading.Thread worker_thread = new System.Threading.Thread(worker.Run);
-                worker_thread.Start();
+                    System.Threading.Thread workerThread = new System.Threading.Thread(worker.Run);
+                    workerThread.Start();
+                }
             }
             else
             {
-                OutputWindowPane.OutputStringThreadSafe(">> No source file available! <<");
+                OutputWindowPane.OutputStringThreadSafe(">> No source file available!");
             }
+        }
+
+        private bool StartBackgroundInfoWorker()
+        {
+            if (InfoWorker != null && (InfoWorker.IsBusy || InfoWorker.CancellationPending))
+                return false;
+
+            if (InfoWorker == null)
+                InfoWorker = new BackgroundWorker();
+
+            InfoWorker.WorkerReportsProgress = true;
+            InfoWorker.WorkerSupportsCancellation = true;
+
+            InfoWorker.DoWork += new DoWorkEventHandler(BackgroundWorkerDowWork);
+            InfoWorker.ProgressChanged += new ProgressChangedEventHandler(BackgroundWorkerUpdateProgress);
+            InfoWorker.RunWorkerAsync();
+
+            return true;
+        }
+
+        private void BackgroundWorkerDowWork(object sender, DoWorkEventArgs args)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            int i = 0;
+
+            while (true)
+            {
+                if (worker.CancellationPending == true)
+                {
+                    break;
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(500);
+                    i++;
+                    worker.ReportProgress(i);
+                }
+            }
+        }
+
+        private void BackgroundWorkerUpdateProgress(object sender, ProgressChangedEventArgs args)
+        {
+            OutputWindowPane.OutputStringThreadSafe(".");
         }
 
         private void InitOutputWindow()
@@ -71,9 +119,14 @@ namespace LLVM.ClangTidy
 
         private void HandleThreadFinished(object sender, EventArgs out_args)
         {
+            InfoWorker.CancelAsync();
+
             ValidationResultFormatter.AcquireTagsFromOutput((out_args as OutputEventArgs).Output);
             ValidationClassifier.InvalidateActiveClassifier();
 
+            while (InfoWorker.CancellationPending) { System.Threading.Thread.Sleep(50); }
+
+            OutputWindowPane.OutputStringThreadSafe("\n");
             OutputWindowPane.OutputStringThreadSafe(ValidationResultFormatter.FormatOutputWindowMessage((out_args as OutputEventArgs).Output));
             OutputWindowPane.OutputStringThreadSafe(">> Finished");
         }

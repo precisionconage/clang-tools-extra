@@ -1,0 +1,12 @@
+---
+Filters:
+  # Format output allowing auto navigation to source code line and column
+  - Pattern:     ":(\\d+):(\\d+)"
+    Replacement: "($1,$2)"
+  - Pattern:     ".*(TPreprocessorGenerated).*(file not found).*\n.*\n.*\n"
+    Replacement: ""
+  - Pattern:     ".*file not found.*\n#include( *)<.*>.*\n.*"
+    Replacement: ""
+  - Pattern:     "^warning:.*$\n"
+    Replacement: ""
+    Multiline:   true

@@ -70,7 +70,7 @@ namespace LLVM.ClangTidy
 
             if (process.ExitCode == 0)
             {
-                return stdOutput.ToString();// FormatMsg(std_output.ToString());
+                return stdOutput.ToString();
             }
             else
             {

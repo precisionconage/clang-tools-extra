@@ -25,30 +25,11 @@ namespace LLVM.ClangTidy
 
         public static string FormatOutputWindowMessage(string message)
         {
-            string pattern = @":(\d+):(\d+)";
-            string replacement = "($1,$2)"; // Format output allowing auto navigation to source code line and column
-
-            Regex rgx = new Regex(pattern);
-            message = rgx.Replace(message, replacement);
-
-            // todo: place it in config file!
-//             pattern = @".*(TPreprocessorGenerated).*(file not found).*\n.*\n.*\n";
-//             replacement = "";
-// 
-//             rgx = new Regex(pattern);
-//             message = rgx.Replace(message, replacement);
-// 
-//             pattern = @".*file not found.*\n#include( *)<.*>.*\n.*";
-//             replacement = "";
-// 
-//             rgx = new Regex(pattern);
-//             message = rgx.Replace(message, replacement);
-// 
-//             pattern = @"\nwarning: .*\n";
-//             replacement = "\n";
-// 
-//             rgx = new Regex(pattern);
-//             message = rgx.Replace(message, replacement);
+            foreach (var filter in OutputFilterDatabase.Filters)
+            {
+                Regex rgx = new Regex(filter.Pattern, filter.Multiline ? RegexOptions.Multiline : RegexOptions.None);
+                message = rgx.Replace(message, filter.Replacement);
+            }
 
             return message;
         }
