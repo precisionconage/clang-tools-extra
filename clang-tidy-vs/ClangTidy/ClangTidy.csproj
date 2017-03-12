@@ -225,16 +225,13 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Images_32bit.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="clang-tidy.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="license.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Resources\ButtonTidy.bmp" />
+    <None Include="Resources\ButtonTidy.png" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -38,7 +38,7 @@
         <CommandFlag>DefaultDocked</CommandFlag>
         <Strings>
           <ButtonText>ClangTidy</ButtonText>
-          <CommandName>ClangTidy</CommandName>
+          <CommandName>Clang Tidy</CommandName>
         </Strings>
       </Menu>
     </Menus>
@@ -76,7 +76,7 @@
         <Parent guid="guidClangTidyCmdSet" id="MyMenuGroup" />
         <Icon guid="guidTidyImage" id="bmpTidy" />
         <Strings>
-          <ButtonText>ClangTidy</ButtonText>
+          <ButtonText>Clang Tidy</ButtonText>
         </Strings>
       </Button>
 
@@ -84,7 +84,7 @@
         <Parent guid="guidClangTidyCmdSet" id="ToolbarGroup" />
         <Icon guid="guidTidyImage" id="bmpTidy" />
         <Strings>
-          <ButtonText>ClangTidy</ButtonText>
+          <ButtonText>Clang Tidy</ButtonText>
         </Strings>
       </Button>
 
