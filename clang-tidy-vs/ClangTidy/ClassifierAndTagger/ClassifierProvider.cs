@@ -1,15 +1,4 @@
-﻿//***************************************************************************
-//
-//    Copyright (c) Microsoft Corporation. All rights reserved.
-//    This code is licensed under the Visual Studio SDK license terms.
-//    THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-//    ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-//    IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-//    PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//***************************************************************************
-
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Utilities;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -23,7 +12,7 @@ namespace LLVM.ClangTidy
     /// </summary>
     [Export(typeof(IClassifierProvider))]
     [ContentType("code")]
-    internal class ToDoClassifierProvider : IClassifierProvider
+    internal class ClassifierProvider : IClassifierProvider
     {
         [Export(typeof(ClassificationTypeDefinition))]
         [Name("clang-tidy-validation")]

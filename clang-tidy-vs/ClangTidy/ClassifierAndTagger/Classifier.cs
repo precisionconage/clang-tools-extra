@@ -1,15 +1,4 @@
-﻿//***************************************************************************
-//
-//    Copyright (c) Microsoft Corporation. All rights reserved.
-//    This code is licensed under the Visual Studio SDK license terms.
-//    THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-//    ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-//    IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-//    PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//***************************************************************************
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.Text.Classification;
@@ -28,10 +17,10 @@ namespace LLVM.ClangTidy
         private static ValidationClassifier ActiveClassifier = null;
         private SnapshotSpan CurrentSpan;
 
-        internal ValidationClassifier(ITagAggregator<ValidationTag> tagger, IClassificationType todoType)
+        internal ValidationClassifier(ITagAggregator<ValidationTag> tagger, IClassificationType classificationType)
         {
             Tagger = tagger;
-            ClassificationType = todoType;
+            ClassificationType = classificationType;
         }
 
         /// <summary>
@@ -70,7 +59,7 @@ namespace LLVM.ClangTidy
         public event EventHandler<ClassificationChangedEventArgs> ClassificationChanged;
 
         /// <summary>
-        /// Force refresh span stored on last update (assume it corresponds to currently active document)
+        /// Force refresh a span stored on last update (assume it corresponds to currently active document)
         /// </summary>
         public void Invalidate()
         {

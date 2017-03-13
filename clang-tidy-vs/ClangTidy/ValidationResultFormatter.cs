@@ -21,7 +21,7 @@ namespace LLVM.ClangTidy
             public string HighlightSymbol;
         }
 
-        static public List<SingleValidationResult> ValidationResults = new List<SingleValidationResult>();
+        static public List<SingleValidationResult> ValidationResults { private set; get; } = new List<SingleValidationResult>();
 
         public static string FormatOutputWindowMessage(string message)
         {

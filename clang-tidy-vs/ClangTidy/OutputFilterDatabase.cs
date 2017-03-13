@@ -21,7 +21,7 @@ namespace LLVM.ClangTidy
     }
 
     /// <summary>
-    /// Reads the list of filters from Yaml
+    /// Reads the list of output window regex filters from Yaml
     /// </summary>
     public static class OutputFilterDatabase
     {

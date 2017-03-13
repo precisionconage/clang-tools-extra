@@ -13,11 +13,11 @@ namespace LLVM.ClangTidy
     internal class TestQuickInfoSourceProvider : IQuickInfoSourceProvider
     {
         [Import]
-        IBufferTagAggregatorFactoryService aggService = null;
+        IBufferTagAggregatorFactoryService AggService = null;
 
         public IQuickInfoSource TryCreateQuickInfoSource(ITextBuffer textBuffer)
         {
-            return new TestQuickInfoSource(textBuffer, aggService.CreateTagAggregator<ValidationTag>(textBuffer));
+            return new TestQuickInfoSource(textBuffer, AggService.CreateTagAggregator<ValidationTag>(textBuffer));
         }
     }
 }

@@ -1,15 +1,4 @@
-﻿//***************************************************************************
-// 
-//    Copyright (c) Microsoft Corporation. All rights reserved.
-//    This code is licensed under the Visual Studio SDK license terms.
-//    THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-//    ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-//    IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-//    PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//***************************************************************************
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -34,11 +23,11 @@ namespace LLVM.ClangTidy
     /// </summary>
     internal class ValidationTagger : ITagger<ValidationTag>
     {
-        ITextBuffer _buffer;
+        ITextBuffer Buffer;
 
         internal ValidationTagger(ITextBuffer buffer)
         {
-            _buffer = buffer;
+            Buffer = buffer;
         }
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged
@@ -63,6 +52,7 @@ namespace LLVM.ClangTidy
                     if (res.Line >= curSpan.Start.GetContainingLine().LineNumber && res.Line <= curSpan.End.GetContainingLine().LineNumber &&
                         string.Compare(res.File, curSpan.Snapshot.TextBuffer.Properties.GetProperty<ITextDocument>(typeof(ITextDocument)).FilePath, true) == 0)
                     {
+                        // Check if found line contains code stored during the last validation
                         var resultLine = curSpan.Snapshot.GetLineFromLineNumber(res.Line);
                         if (resultLine.GetText().Contains(res.CodeLine))
                         {

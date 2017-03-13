@@ -1,10 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using EnvDTE;
-using System.IO;
-using System.Reflection;
-using System.ComponentModel;
 
 namespace LLVM.ClangTidy
 {
@@ -19,12 +17,20 @@ namespace LLVM.ClangTidy
         private static IVsOutputWindowPane OutputWindowPane;
         private static string ExtensionDirPath;
         private static BackgroundWorker InfoWorker;
+        private static volatile bool IsUpdateInProgress = false;
+
+        static ClangTidyRunner()
+        {
+            IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+            outWindow.CreatePane(ref OutputWindowGuid, OutputWindowTitle, 1, 1);
+            outWindow.GetPane(ref OutputWindowGuid, out OutputWindowPane);
+
+            ExtensionDirPath = Utility.GetVsixInstallPath();
+        }
 
         public static void RunClangTidyProcess()
         {
-            InitOutputWindow();
-
-            ForceOutputWindowToFront();
+            PrepareOutputWindow();
 
             string activeDocumentFullPath = Utility.GetActiveSourceFileFullPath(true);
 
@@ -33,8 +39,12 @@ namespace LLVM.ClangTidy
                 string arguments = "-header-filter=" + Utility.GetActiveSourceFileHeaderName();
                 arguments += " " + activeDocumentFullPath;
 
-                if (StartBackgroundInfoWorker())
+                if (!IsUpdateInProgress)
                 {
+                    IsUpdateInProgress = true;
+
+                    StartBackgroundInfoWorker();
+
                     OutputWindowPane.OutputStringThreadSafe(">> Running " + ClangTidyExeName + " with arguments: '" + arguments + "'\n");
 
                     BackgroundThreadWorker worker = new BackgroundThreadWorker(ExtensionDirPath + "\\" + ClangTidyExeName, arguments);
@@ -57,24 +67,31 @@ namespace LLVM.ClangTidy
             ValidationResultFormatter.AcquireTagsFromOutput((out_args as OutputEventArgs).Output);
             ValidationClassifier.InvalidateActiveClassifier();
 
+            // Wait for info worker thread to finish
             while (InfoWorker.CancellationPending) { System.Threading.Thread.Sleep(50); }
 
             OutputWindowPane.OutputStringThreadSafe("\n");
             OutputWindowPane.OutputStringThreadSafe(ValidationResultFormatter.FormatOutputWindowMessage((out_args as OutputEventArgs).Output));
             OutputWindowPane.OutputStringThreadSafe(">> Finished");
+
+            IsUpdateInProgress = false;
         }
 
         /// <summary>
-        /// Background worker is a simple thread responsible with updating output window 
+        /// Background worker is a simple thread responsible for updating output window 
         /// (tell user something is happening in background) while clang-tidy thread does it's job.
         /// </summary>
         private static bool StartBackgroundInfoWorker()
         {
             if (InfoWorker != null && (InfoWorker.IsBusy || InfoWorker.CancellationPending))
-                return false;
+            {
+                throw new Exception("while trying to start new worker thread another worker thread found running!");
+            }
 
             if (InfoWorker == null)
+            {
                 InfoWorker = new BackgroundWorker();
+            }
 
             InfoWorker.WorkerReportsProgress = true;
             InfoWorker.WorkerSupportsCancellation = true;
@@ -93,16 +110,14 @@ namespace LLVM.ClangTidy
 
             while (true)
             {
-                if (worker.CancellationPending == true)
+                if (worker.CancellationPending)
                 {
                     break;
                 }
-                else
-                {
-                    System.Threading.Thread.Sleep(500);
-                    i++;
-                    worker.ReportProgress(i);
-                }
+
+                System.Threading.Thread.Sleep(500);
+                i++;
+                worker.ReportProgress(i);
             }
         }
 
@@ -114,29 +129,12 @@ namespace LLVM.ClangTidy
             OutputWindowPane.OutputStringThreadSafe(".");
         }
 
-        private static void InitOutputWindow()
+        private static void PrepareOutputWindow()
         {
-            if (OutputWindowPane == null)
-            {
-                IVsOutputWindow out_window = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-                out_window.CreatePane(ref OutputWindowGuid, OutputWindowTitle, 1, 1);
-                out_window.GetPane(ref OutputWindowGuid, out OutputWindowPane);
-            }
-
-            if (ExtensionDirPath == null)
-            {
-                string code_base = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(code_base);
-                string path = Uri.UnescapeDataString(uri.Path);
-                ExtensionDirPath = Path.GetDirectoryName(path);
-            }
-
             OutputWindowPane.Clear();
             OutputWindowPane.Activate();
-        }
 
-        private static void ForceOutputWindowToFront()
-        {
+            // Force output window to front
             DTE dte = Package.GetGlobalService(typeof(SDTE)) as DTE;
             dte.ExecuteCommand("View.Output");
         }
