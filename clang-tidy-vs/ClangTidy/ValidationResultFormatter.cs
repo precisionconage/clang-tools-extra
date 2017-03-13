@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace LLVM.ClangTidy
 {
-    static class ValidationResultFormatter
+    static public class ValidationResultFormatter
     {
         public class SingleValidationResult
         {
@@ -38,10 +38,10 @@ namespace LLVM.ClangTidy
         {
             ValidationResults.Clear();
 
-            // Clang-check output pattern is as goes: 
-            // (file full path):(line):(column): (warning/error): (description) [clang-tidy check name]
+            // Clang-tidy output pattern is as goes: 
+            // (file name full path):(line):(column): (warning/error): (description) [clang-tidy check name]
             //     (indented code line)
-            //                   (^ character pointing place in code)
+            //                   (^ character pointing at warning/error in code line)
             string pattern = @"(.*):(\d+):(\d+):\s(.*):\s(.*)\s\[(.*)\]\r\n(.*)\r";
 
             MatchCollection matches = Regex.Matches(message, pattern);
@@ -51,15 +51,16 @@ namespace LLVM.ClangTidy
                 {
                     SingleValidationResult res = new SingleValidationResult();
                     res.File = match.Groups[1].Value;
-                    res.File = res.File.Replace('/', '\\');
+                    res.File = res.File.Replace('/', '\\'); // use Microsoft's favorite backslashes in paths instead of standard slashes
                     int.TryParse(match.Groups[2].Value, out res.Line);
                     int.TryParse(match.Groups[3].Value, out res.Column);
-                    res.Line -= 1; // line and column number start from 1 but in MEF numbering starts with 0
-                    res.Column -= 1;
+                    res.Line -= 1;   // line and column number start from 1 but in MEF numbering starts with 0
+                    res.Column -= 1; //
                     res.Classification = match.Groups[4].Value;
                     res.Description = match.Groups[5].Value;
                     res.TidyCheckName = match.Groups[6].Value;
                     res.CodeLine = match.Groups[7].Value;
+                    // Extract symbol where warning/error is present using given column number as start and searching for ending delimiter
                     res.HighlightSymbol = res.CodeLine.Substring(res.Column);
                     res.HighlightSymbol = Regex.Match(res.HighlightSymbol, @"^([a-zA-z0-9_]+)").ToString();
 

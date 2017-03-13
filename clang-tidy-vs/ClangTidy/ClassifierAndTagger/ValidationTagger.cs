@@ -13,11 +13,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Classification;
-
-using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Utilities;
 
 namespace LLVM.ClangTidy
 {
@@ -77,26 +72,6 @@ namespace LLVM.ClangTidy
 
                             yield return new TagSpan<ValidationTag>(validationKeywordSpan, new ValidationTag(res.Description));
                         }
-
-//                         int loc = curSpan.GetText().IndexOf(res.CodeLine);
-//                         while (loc >= 0)
-//                         {
-//                             int loc_in_span = loc + (res.Column - 1) + curSpan.Start.Position;
-//                             SnapshotPoint snapshotPoint = new SnapshotPoint(curSpan.Snapshot, loc_in_span);
-//                             if (snapshotPoint.GetContainingLine().LineNumber + 1 == res.Line)
-//                             {
-//                                 SnapshotSpan validationSpan = new SnapshotSpan(curSpan.Snapshot, new Span(loc_in_span, res.HighlightSymbol.Length));
-//                                 yield return new TagSpan<ValidationTag>(validationSpan, new ValidationTag());
-//                                 break;
-//                             }
-//                             else if (snapshotPoint.Position + 1 < curSpan.End.Position)
-//                             {
-//                                 // Step over and search for next occurrence of wanted string
-//                                 loc = curSpan.GetText().Substring(snapshotPoint.Position + 1).IndexOf(res.CodeLine);
-//                             }
-//                             else
-//                                 break;
-//                         }
                     }
                 }
             }

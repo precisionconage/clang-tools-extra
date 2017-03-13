@@ -12,13 +12,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.Utilities;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Text;
-using System.Windows.Media;
 
 namespace LLVM.ClangTidy
 {
@@ -48,8 +44,10 @@ namespace LLVM.ClangTidy
         {
             ActiveClassifier = this;
 
-            // After clang-tidy returns new results, tags will be automatically created only for newly appearing text lines or focused code window.
-            // To force-refresh tags in current window store single span for the whole file and call Invalidate() on this span when clang-tidy results are ready.
+            // After clang-tidy returns new results, tags will be automatically created only for 
+            //   newly appearing text lines or focused code window.
+            // To force-refresh tags in current window store single span for the whole file and 
+            //   call Invalidate() on this span when clang-tidy results are ready.
             var WholeSpan = new SnapshotSpan(span.Snapshot, 0, span.Snapshot.Length);
             CurrentSpan = WholeSpan;
 
@@ -76,11 +74,7 @@ namespace LLVM.ClangTidy
         /// </summary>
         public void Invalidate()
         {
-            var Snapshot = ClassificationChanged;
-            if (Snapshot != null)
-            {
-                Snapshot(this, new ClassificationChangedEventArgs(CurrentSpan));
-            }
+            ClassificationChanged?.Invoke(this, new ClassificationChangedEventArgs(CurrentSpan));
         }
 
         static public void InvalidateActiveClassifier()

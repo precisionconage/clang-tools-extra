@@ -1,43 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using EnvDTE;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.ComponentModel;
 
 namespace LLVM.ClangTidy
 {
-    class ClangTidyRunner
+    /// <summary>
+    /// Launches clang-tidy.exe, waits for results and displays them in output window
+    /// </summary>
+    public static class ClangTidyRunner
     {
         private static readonly string ClangTidyExeName = "clang-tidy.exe";
         private static Guid OutputWindowGuid = new Guid(GuidList.guidClangTidyOutputWndString);
         private static readonly string OutputWindowTitle = "Clang Tidy";
         private static IVsOutputWindowPane OutputWindowPane;
         private static string ExtensionDirPath;
-        private static System.ComponentModel.BackgroundWorker InfoWorker;
+        private static BackgroundWorker InfoWorker;
 
-        public void RunClangTidyProcess()
+        public static void RunClangTidyProcess()
         {
             InitOutputWindow();
 
             ForceOutputWindowToFront();
 
-            OutputWindowPane.Clear();
-            OutputWindowPane.Activate();
+            string activeDocumentFullPath = Utility.GetActiveSourceFileFullPath(true);
 
-            string active_document_full_path = GetActiveSourceFileFullPath(true);
-
-            if (active_document_full_path != null)
+            if (activeDocumentFullPath != null)
             {
-                string arguments = "-header-filter=" + GetActiveSourceFileHeaderName();// -dump-config ";
-                arguments += " " + active_document_full_path;
+                string arguments = "-header-filter=" + Utility.GetActiveSourceFileHeaderName();
+                arguments += " " + activeDocumentFullPath;
 
                 if (StartBackgroundInfoWorker())
                 {
@@ -56,7 +50,25 @@ namespace LLVM.ClangTidy
             }
         }
 
-        private bool StartBackgroundInfoWorker()
+        private static void HandleThreadFinished(object sender, EventArgs out_args)
+        {
+            InfoWorker.CancelAsync();
+
+            ValidationResultFormatter.AcquireTagsFromOutput((out_args as OutputEventArgs).Output);
+            ValidationClassifier.InvalidateActiveClassifier();
+
+            while (InfoWorker.CancellationPending) { System.Threading.Thread.Sleep(50); }
+
+            OutputWindowPane.OutputStringThreadSafe("\n");
+            OutputWindowPane.OutputStringThreadSafe(ValidationResultFormatter.FormatOutputWindowMessage((out_args as OutputEventArgs).Output));
+            OutputWindowPane.OutputStringThreadSafe(">> Finished");
+        }
+
+        /// <summary>
+        /// Background worker is a simple thread responsible with updating output window 
+        /// (tell user something is happening in background) while clang-tidy thread does it's job.
+        /// </summary>
+        private static bool StartBackgroundInfoWorker()
         {
             if (InfoWorker != null && (InfoWorker.IsBusy || InfoWorker.CancellationPending))
                 return false;
@@ -67,14 +79,14 @@ namespace LLVM.ClangTidy
             InfoWorker.WorkerReportsProgress = true;
             InfoWorker.WorkerSupportsCancellation = true;
 
-            InfoWorker.DoWork += new DoWorkEventHandler(BackgroundWorkerDowWork);
+            InfoWorker.DoWork += new DoWorkEventHandler(BackgroundWorkerDoWork);
             InfoWorker.ProgressChanged += new ProgressChangedEventHandler(BackgroundWorkerUpdateProgress);
             InfoWorker.RunWorkerAsync();
 
             return true;
         }
 
-        private void BackgroundWorkerDowWork(object sender, DoWorkEventArgs args)
+        private static void BackgroundWorkerDoWork(object sender, DoWorkEventArgs args)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
             int i = 0;
@@ -94,12 +106,15 @@ namespace LLVM.ClangTidy
             }
         }
 
-        private void BackgroundWorkerUpdateProgress(object sender, ProgressChangedEventArgs args)
+        /// <summary>
+        /// Just put comma every now and then to ensure user clang-tidy is still working
+        /// </summary>
+        private static void BackgroundWorkerUpdateProgress(object sender, ProgressChangedEventArgs args)
         {
             OutputWindowPane.OutputStringThreadSafe(".");
         }
 
-        private void InitOutputWindow()
+        private static void InitOutputWindow()
         {
             if (OutputWindowPane == null)
             {
@@ -115,65 +130,12 @@ namespace LLVM.ClangTidy
                 string path = Uri.UnescapeDataString(uri.Path);
                 ExtensionDirPath = Path.GetDirectoryName(path);
             }
+
+            OutputWindowPane.Clear();
+            OutputWindowPane.Activate();
         }
 
-        private void HandleThreadFinished(object sender, EventArgs out_args)
-        {
-            InfoWorker.CancelAsync();
-
-            ValidationResultFormatter.AcquireTagsFromOutput((out_args as OutputEventArgs).Output);
-            ValidationClassifier.InvalidateActiveClassifier();
-
-            while (InfoWorker.CancellationPending) { System.Threading.Thread.Sleep(50); }
-
-            OutputWindowPane.OutputStringThreadSafe("\n");
-            OutputWindowPane.OutputStringThreadSafe(ValidationResultFormatter.FormatOutputWindowMessage((out_args as OutputEventArgs).Output));
-            OutputWindowPane.OutputStringThreadSafe(">> Finished");
-        }
-
-        private string GetActiveSourceFileFullPath(bool search_for_cpp_file)
-        {
-            DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-
-            if (dte.ActiveDocument != null)
-            {
-                string file_path = dte.ActiveDocument.FullName;
-                if (search_for_cpp_file && !file_path.EndsWith(".cpp"))
-                {
-                    string cpp_file_path = Regex.Replace(file_path, @"\..*$", ".cpp");
-                    if (File.Exists(cpp_file_path))
-                        return cpp_file_path;
-                }
-
-                return file_path;
-            }
-            else
-                return null;
-        }
-
-        private string GetActiveSourceFileName()
-        {
-            DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-
-            if (dte.ActiveDocument != null)
-                return dte.ActiveDocument.Name;
-            else
-                return null;
-        }
-
-        private string GetActiveSourceFileHeaderName()
-        {
-            string file_name = GetActiveSourceFileName();
-
-            if (!string.IsNullOrEmpty(file_name))
-            {
-                file_name = Regex.Replace(file_name, @"\..*$", ".h");
-            }
-
-            return file_name;
-        }
-
-        private void ForceOutputWindowToFront()
+        private static void ForceOutputWindowToFront()
         {
             DTE dte = Package.GetGlobalService(typeof(SDTE)) as DTE;
             dte.ExecuteCommand("View.Output");

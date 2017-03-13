@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
   <Metadata>
-    <Identity Id="ClangTidy" Version="5.0.0" Language="en-US" Publisher="LLVM" />
+    <Identity Id="ClangTidy" Version="4.0.0" Language="en-US" Publisher="LLVM" />
     <DisplayName>Clang Tidy</DisplayName>
     <Description xml:space="preserve">A static analysis tool for C/C++ code.</Description>
     <MoreInfo>http://clang.llvm.org/extra/clang-tidy/</MoreInfo>

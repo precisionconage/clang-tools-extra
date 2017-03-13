@@ -9,10 +9,6 @@
 //
 //***************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Utilities;
@@ -60,8 +56,8 @@ namespace LLVM.ClangTidy
     {
         public ValidationWarningFormat()
         {
-            DisplayName = "clang-tidy validation failed"; //human readable version of the name
-            BackgroundOpacity = 0.4f;
+            DisplayName = "clang-tidy validation failed";
+            BackgroundOpacity = 0.3f;
             BackgroundColor = Colors.Red;
         }
     }
