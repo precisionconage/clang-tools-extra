@@ -1,4 +1,4 @@
-﻿//===-- ClangTidyPackages.cs - VSPackage for clang-tidy ----------*- C# -*-===//
+//===-- ClangTidyPackages.cs - VSPackage for clang-tidy ----------*- C# -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -23,7 +23,6 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace LLVM.ClangTidy
 {
@@ -51,6 +50,7 @@ namespace LLVM.ClangTidy
 
         private void MenuItemCallback(object sender, EventArgs args)
         {
+            ClangTidyRunner.RunClangTidyProcess();
         }
     }
 }
